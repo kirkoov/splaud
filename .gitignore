@@ -62,3 +62,6 @@ Thumbs.db
 *.ape
 *.amr
 *.webm
+
+# Test output
+test-output/
