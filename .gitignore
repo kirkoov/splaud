@@ -44,3 +44,21 @@ Thumbs.db
 
 # Type checker
 .pyre/
+
+# Audio
+*.mp3
+*.wav
+*.ogg
+*.oga
+*.opus
+*.flac
+*.m4a
+*.m4b
+*.mp4
+*.aac
+*.wma
+*.aiff
+*.aif
+*.ape
+*.amr
+*.webm
