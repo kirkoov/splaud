@@ -100,7 +100,7 @@ def split_chapters(
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    for number, chapter in enumerate(chapters, start=1):
+    for number, chapter in enumerate(chapters):
         print(
             f"[{number}/{len(chapters)}] "
             f"{chapter.title} "
