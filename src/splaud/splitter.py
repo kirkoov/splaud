@@ -42,11 +42,15 @@ def split_fixed(
     output_file: Path,
     duration: int,
     ffmpeg: str,
+    start: int = 0,
+    title: str | None = None,
 ) -> None:
     """Create one fixed-duration audio chunk."""
     command = [
         ffmpeg,
         "-hide_banner",
+        "-ss",
+        str(start),
         "-i",
         str(input_file),
         "-map",
@@ -55,12 +59,71 @@ def split_fixed(
         "0:v:0?",
         "-c",
         "copy",
-        "-t",
-        str(duration),
-        str(output_file),
     ]
 
+    if title is not None:
+        command.extend(["-metadata", f"title={title}"])
+
+    command.extend(
+        [
+            "-t",
+            str(duration),
+            str(output_file),
+        ]
+    )
     subprocess.run(command, check=True)
+
+
+def split_fixed_chunks(
+    input_file: Path,
+    output_dir: Path,
+    duration: int,
+    ffmpeg: str,
+) -> None:
+    """Split an audio file into fixed-duration chunks."""
+    output_dir = output_dir / input_file.stem
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    command = [
+        "ffprobe",
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration",
+        "-of",
+        "default=noprint_wrappers=1:nokey=1",
+        str(input_file),
+    ]
+
+    result = subprocess.run(
+        command,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    total_duration = float(result.stdout)
+    chunk_count = int((total_duration + duration - 1) // duration)
+
+    for number in range(chunk_count):
+        start = number * duration
+
+        print(
+            f"[{number}/{chunk_count}] "
+            f"{input_file.name} "
+            f"({format_duration(min(duration, total_duration - start))})"
+        )
+
+        output_file = output_dir / f"chunk-{number:03d}{input_file.suffix}"
+
+        split_fixed(
+            input_file,
+            output_file,
+            duration,
+            ffmpeg,
+            start,
+            output_file.stem,
+        )
 
 
 def split_chapter(
