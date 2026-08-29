@@ -5,7 +5,7 @@ from splaud.ffmpeg import find_ffmpeg
 
 from .chapters import Chapter, get_chapters
 
-MP3_FRAME_PRE_ROLL = 0.026
+FRAME_PRE_ROLL = 0.026
 
 
 def format_duration(seconds: float) -> str:
@@ -47,8 +47,8 @@ def split_fixed(
     start: int = 0,
     title: str | None = None,
 ) -> None:
-    """Create one fixed-duration audio chunk, starting one frame early."""
-    seek = max(0, start - MP3_FRAME_PRE_ROLL)
+    """Create one fixed-duration audio chunk."""
+    seek = max(0, start - FRAME_PRE_ROLL)
 
     command = [
         ffmpeg,
@@ -83,6 +83,7 @@ def split_fixed_chunks(
     output_dir: Path,
     duration: int,
     ffmpeg: str,
+    adjustment: int = 0,
 ) -> None:
     """Split an audio file into fixed-duration chunks."""
     output_dir = output_dir / input_file.stem
@@ -111,6 +112,10 @@ def split_fixed_chunks(
 
     for number in range(chunk_count):
         start = number * duration
+
+        if number > 0:
+            start += adjustment
+
         print(
             f"[{number}/{chunk_count}] "
             f"{input_file.name} "
