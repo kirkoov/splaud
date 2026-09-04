@@ -42,7 +42,7 @@ def warn_long_chapters(
 def split_fixed(
     input_file: Path,
     output_file: Path,
-    duration: int,
+    duration: float,
     ffmpeg: str,
     start: int = 0,
     title: str | None = None,
@@ -116,6 +116,11 @@ def split_fixed_chunks(
         if number > 0:
             start += adjustment
 
+        chunk_duration = min(
+            duration - adjustment if number > 0 else duration,
+            total_duration - start,
+        )
+
         print(
             f"[{number}/{chunk_count}] "
             f"{input_file.name} "
@@ -127,7 +132,7 @@ def split_fixed_chunks(
         split_fixed(
             input_file,
             output_file,
-            duration,
+            chunk_duration,
             ffmpeg,
             start,
             output_file.stem,
